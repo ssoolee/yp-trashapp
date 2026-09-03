@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ------------------------------------------------------------------------
   // 1. App State
   // ------------------------------------------------------------------------
-  let savedCalc = [];
+  let savedFavs = [];
   try {
-    savedCalc = JSON.parse(localStorage.getItem('yp_calc_items')) || [];
+    savedFavs = JSON.parse(localStorage.getItem('yp_favorites')) || [];
   } catch (e) {
-    savedCalc = [];
+    savedFavs = [];
   }
 
   const state = {
@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     activeCategory: 'general',
     theme: localStorage.getItem('yp_theme') || 'light',
     searchQuery: '',
-    selectedCalcItems: savedCalc // { name, fee, qty }
+    selectedCalcItems: savedCalc, // { name, fee, qty }
+    favoriteItems: savedFavs, // Array of favorited item names
+    showOnlyFavorites: false
   };
 
   // ------------------------------------------------------------------------
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('yp_town', state.selectedTownId);
     localStorage.setItem('yp_theme', state.theme);
     localStorage.setItem('yp_calc_items', JSON.stringify(state.selectedCalcItems));
+    localStorage.setItem('yp_favorites', JSON.stringify(state.favoriteItems));
 
     if (supabaseClient) {
       supabaseClient
@@ -53,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
           selected_town: state.selectedTownId,
           theme: state.theme,
           calc_items: state.selectedCalcItems,
+          favorite_items: state.favoriteItems,
           updated_at: new Date().toISOString()
         }, { onConflict: 'device_id' })
         .then(({ error }) => {
@@ -74,10 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.selected_town) state.selectedTownId = data.selected_town;
         if (data.theme) state.theme = data.theme;
         if (data.calc_items && Array.isArray(data.calc_items)) state.selectedCalcItems = data.calc_items;
+        if (data.favorite_items && Array.isArray(data.favorite_items)) state.favoriteItems = data.favorite_items;
 
         initTheme();
         renderTownSelector();
         renderLiveStatus();
+        renderQuickTags();
+        renderSearchResults();
         renderSelectedCalcList();
         renderOfficesGrid();
       }
@@ -363,39 +370,72 @@ document.addEventListener('DOMContentLoaded', () => {
   const QUICK_TAGS = ["치킨 뼈", "깨진 유리", "투명 페트병", "아이스팩", "이불", "폐건전지", "스티로폼", "우유팩", "매트리스", "음식물"];
 
   function renderQuickTags() {
+    const favCount = state.favoriteItems.length;
+    const favBtnStyle = state.showOnlyFavorites
+      ? 'border-color: #F59E0B; color: white; background: #F59E0B; font-weight: 800;'
+      : 'border-color: #F59E0B; color: #D97706; background: rgba(245, 158, 11, 0.12); font-weight: 800;';
+
     quickTagsEl.innerHTML = `
-      <span class="quick-tag-label"><i class="fa-solid fa-fire" style="color: #EF4444;"></i> 자주 찾는 품목:</span>
+      <span class="quick-tag-label"><i class="fa-solid fa-fire" style="color: #EF4444;"></i> 추천 필터:</span>
+      <button class="tag-btn" id="favFilterBtn" style="${favBtnStyle}">
+        <i class="fa-solid fa-star" style="color: ${state.showOnlyFavorites ? 'white' : '#F59E0B'}; margin-right: 4px;"></i> 내 즐겨찾기 (${favCount})
+      </button>
       ${QUICK_TAGS.map(tag => `<button class="tag-btn">${tag}</button>`).join('')}
     `;
 
-    quickTagsEl.querySelectorAll('.tag-btn').forEach(btn => {
+    const favFilterBtn = document.getElementById('favFilterBtn');
+    if (favFilterBtn) {
+      favFilterBtn.addEventListener('click', () => {
+        state.showOnlyFavorites = !state.showOnlyFavorites;
+        state.searchQuery = '';
+        searchInputEl.value = '';
+        renderQuickTags();
+        renderSearchResults();
+      });
+    }
+
+    quickTagsEl.querySelectorAll('.tag-btn:not(#favFilterBtn)').forEach(btn => {
       btn.addEventListener('click', () => {
+        state.showOnlyFavorites = false;
         searchInputEl.value = btn.textContent;
         state.searchQuery = btn.textContent;
+        renderQuickTags();
         renderSearchResults();
       });
     });
   }
 
   searchInputEl.addEventListener('input', (e) => {
+    state.showOnlyFavorites = false;
     state.searchQuery = e.target.value.trim();
+    renderQuickTags();
     renderSearchResults();
   });
 
   function renderSearchResults() {
     const q = state.searchQuery.toLowerCase();
-    const filtered = YANGPYEONG_DATA.itemsDatabase.filter(item => 
-      item.name.toLowerCase().includes(q) ||
-      item.method.toLowerCase().includes(q) ||
-      item.bag.toLowerCase().includes(q)
-    );
+    let filtered = YANGPYEONG_DATA.itemsDatabase;
+
+    if (state.showOnlyFavorites) {
+      filtered = filtered.filter(item => state.favoriteItems.includes(item.name));
+    } else if (q) {
+      filtered = filtered.filter(item => 
+        item.name.toLowerCase().includes(q) ||
+        item.method.toLowerCase().includes(q) ||
+        item.bag.toLowerCase().includes(q)
+      );
+    }
 
     if (filtered.length === 0) {
+      const msg = state.showOnlyFavorites
+        ? '등록된 즐겨찾기 품목이 없습니다. 별 모양(★) 버튼을 눌러 자주 찾는 쓰레기를 추가해 보세요!'
+        : `'${state.searchQuery}'에 대한 검색 결과가 없습니다.`;
+
       searchResultsGridEl.innerHTML = `
         <div class="no-results">
-          <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 12px; opacity: 0.5;"></i>
-          <div>'${state.searchQuery}'에 대한 검색 결과가 없습니다.</div>
-          <div style="font-size: 0.85rem; margin-top: 4px;">정확한 품목명으로 다시 검색하시거나, 읍·면사무소에 직접 문의해 보세요.</div>
+          <i class="fa-solid fa-star" style="font-size: 2rem; margin-bottom: 12px; opacity: 0.4; color: #F59E0B;"></i>
+          <div>${msg}</div>
+          <div style="font-size: 0.85rem; margin-top: 4px;">정확한 품목명으로 다시 검색하시거나 읍·면사무소에 직접 문의해 보세요.</div>
         </div>
       `;
       return;
@@ -403,10 +443,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchResultsGridEl.innerHTML = filtered.map(item => {
       const cat = YANGPYEONG_DATA.categories.find(c => c.id === item.category);
+      const isFav = state.favoriteItems.includes(item.name);
       return `
         <div class="item-card">
           <div class="item-card-header">
-            <span class="item-name">${item.name}</span>
+            <div class="item-name-group">
+              <button class="fav-star-btn ${isFav ? 'active' : ''}" data-name="${item.name}" title="${isFav ? '즐겨찾기 삭제' : '즐겨찾기 등록'}">
+                <i class="fa-${isFav ? 'solid' : 'regular'} fa-star"></i>
+              </button>
+              <span class="item-name">${item.name}</span>
+            </div>
             <span class="item-cat-badge" style="background: ${cat.color};">${cat.name}</span>
           </div>
           <div class="item-detail-row">
@@ -421,6 +467,25 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     }).join('');
+
+    // Attach click events for favorite star buttons
+    searchResultsGridEl.querySelectorAll('.fav-star-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const itemName = btn.dataset.name;
+        const idx = state.favoriteItems.indexOf(itemName);
+        if (idx > -1) {
+          state.favoriteItems.splice(idx, 1);
+          showToast(`⭐ '${itemName}'이(가) 즐겨찾기에서 삭제되었습니다.`);
+        } else {
+          state.favoriteItems.push(itemName);
+          showToast(`⭐ '${itemName}'이(가) 즐겨찾기에 등록되었습니다.`);
+        }
+        saveAppState();
+        renderQuickTags();
+        renderSearchResults();
+      });
+    });
   }
 
   // ------------------------------------------------------------------------
