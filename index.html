@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#059669">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>양평군 12개 읍·면 쓰레기 배출일 안내 | 스마트 양평 클린가이드</title>
+  <meta name="description" content="양평군 12개 읍·면(양평읍, 강상, 강하, 양서, 옥천, 서종, 단월, 청운, 양동, 지평, 용문, 개군) 쓰레기 배출 요일, 종량제 봉투 가격, 분리배출 스마트 검색, 대형폐기물 수수료 계산기 서비스">
+
+  <!-- Google Fonts: Suite & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=SUITE:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- 1. Header Navigation -->
+  <header class="header">
+    <div class="container">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-leaf"></i>
+        </div>
+        <div>
+          <span>스마트 양평</span> <span style="font-weight: 400; font-size: 1rem; color: var(--text-muted);">클린가이드</span>
+        </div>
+      </a>
+
+      <div class="nav-controls">
+        <button id="noticeBtn" class="notice-btn" title="배출일 알림 받기">
+          <i class="fa-regular fa-bell"></i>
+        </button>
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="다크/라이트 테마 변경">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Hero Section & Town Selector -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <i class="fa-solid fa-location-dot"></i> 경기도 양평군 12개 읍·면 통합 청소안내
+      </div>
+      <h1 class="hero-title">
+        우리 동네 <span>쓰레기 배출일자</span>를<br>한눈에 확인하세요
+      </h1>
+      <p class="hero-subtitle">
+        거주하시는 읍·면을 선택하시면 오늘 저녁 배출 가능 품목, 분리배출 방법, 종량제 봉투 가격 및 대형폐기물 수수료를 실시간으로 안내해 드립니다.
+      </p>
+
+      <!-- Town Selection Grid -->
+      <div class="town-selector-wrapper">
+        <div class="town-header">
+          <div class="town-header-title">
+            <i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i>
+            <span>양평군 12개 읍·면 선택</span>
+          </div>
+          <div class="selected-town-badge" id="selectedTownBadge">양평읍</div>
+        </div>
+
+        <div class="town-grid" id="townGrid">
+          <!-- JS dynamic generation -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="container">
+
+    <!-- 3. Live Status Banner ("오늘 저녁 배출 가능한 쓰레기") -->
+    <section class="live-status-card" id="liveStatusCard">
+      <!-- JS dynamic generation -->
+    </section>
+
+    <!-- 4. Waste Categories & Discharge Schedule -->
+    <section id="dischargeGuide" style="margin-bottom: 48px;">
+      <h2 class="section-title">
+        <i class="fa-solid fa-dumpster" style="color: var(--primary);"></i>
+        쓰레기 종류별 배출 가이드 & 요일표
+      </h2>
+
+      <!-- Category Navigation Tabs -->
+      <div class="category-tabs" id="categoryTabs">
+        <!-- JS dynamic generation -->
+      </div>
+
+      <!-- Tab Details Content -->
+      <div class="tab-content" id="categoryContent">
+        <!-- JS dynamic generation -->
+      </div>
+    </section>
+
+    <!-- 5. Smart Search Engine ("이 쓰레기는 어떻게 버리지?") -->
+    <section class="search-section" id="searchSection">
+      <h2 class="section-title">
+        <i class="fa-solid fa-magnifying-glass-chart" style="color: var(--primary);"></i>
+        이 쓰레기는 어떻게 버리지? (스마트 분리배출 검색)
+      </h2>
+
+      <div class="search-box-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="버리고 싶은 쓰레기 품목을 입력해 보세요 (예: 치킨 뼈, 깨진 유리, 아이스팩, 이불, 매트리스...)">
+      </div>
+
+      <div class="quick-search-tags" id="quickTags">
+        <!-- JS dynamic generation -->
+      </div>
+
+      <div class="search-results-grid" id="searchResultsGrid">
+        <!-- JS dynamic generation -->
+      </div>
+    </section>
+
+    <!-- 6. Bulky Waste Fee Calculator -->
+    <section class="calculator-section" id="calcSection">
+      <h2 class="section-title">
+        <i class="fa-solid fa-calculator" style="color: var(--primary);"></i>
+        대형폐기물 수수료 산정 계산기
+      </h2>
+
+      <div class="calculator-wrapper">
+        <div class="calc-items-select-area">
+          <input type="text" id="calcSearchInput" class="calc-search-input" placeholder="대형폐기물 품목 검색 (예: 장롱, 소파, 침대, 책상, 자전거...)">
+          
+          <div class="calc-items-list" id="calcItemsList">
+            <!-- JS dynamic generation -->
+          </div>
+        </div>
+
+        <div class="calc-receipt-box">
+          <div>
+            <div class="receipt-title">
+              <i class="fa-solid fa-receipt" style="color: var(--primary);"></i>
+              배출 품목 명세서
+            </div>
+
+            <div class="selected-calc-list" id="selectedCalcList">
+              <!-- JS dynamic generation -->
+            </div>
+          </div>
+
+          <div>
+            <div class="receipt-total-row">
+              <span>총 예상 수수료</span>
+              <span class="total-price" id="totalPrice">0원</span>
+            </div>
+
+            <a href="https://smart.yangpyeong.go.kr" target="_blank" rel="noopener noreferrer" class="apply-link-btn">
+              <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i>
+              '스마트 양평톡톡' 온라인 신고 바로가기
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Town Offices Direct Contact Grid -->
+    <section id="officesSection" style="margin-bottom: 64px;">
+      <h2 class="section-title">
+        <i class="fa-solid fa-building-user" style="color: var(--primary);"></i>
+        12개 읍·면 행정복지센터 & 직통 연락처
+      </h2>
+
+      <div class="offices-grid" id="officesGrid">
+        <!-- JS dynamic generation -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 8. Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p style="font-weight: 800; font-size: 1.1rem; color: var(--text-main); margin-bottom: 8px;">
+        <i class="fa-solid fa-leaf" style="color: var(--primary); margin-right: 6px;"></i> 스마트 양평 클린가이드
+      </p>
+      <p>본 서비스는 양평군 12개 읍·면 주민의 올바른 쓰레기 분리배출 및 환경보호를 위해 제공되는 웹 서비스입니다.</p>
+      <div class="footer-info">
+        양평군청 환경과 문의: 031-770-2284 / 2252 | 대형폐가전 무상방문수거: 1599-0903
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-notice" id="toastNotice"></div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <button class="mobile-nav-item active" data-target="hero">
+      <i class="fa-solid fa-house"></i>
+      <span>홈</span>
+    </button>
+    <button class="mobile-nav-item" data-target="dischargeGuide">
+      <i class="fa-solid fa-dumpster"></i>
+      <span>배출가이드</span>
+    </button>
+    <button class="mobile-nav-item" data-target="searchSection">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <span>스마트검색</span>
+    </button>
+    <button class="mobile-nav-item" data-target="calcSection">
+      <i class="fa-solid fa-calculator"></i>
+      <span>계산기</span>
+    </button>
+    <button class="mobile-nav-item" data-target="officesSection">
+      <i class="fa-solid fa-phone"></i>
+      <span>전화문의</span>
+    </button>
+  </nav>
+
+  <!-- App Logic Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
