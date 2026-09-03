@@ -6,13 +6,85 @@ document.addEventListener('DOMContentLoaded', () => {
   // ------------------------------------------------------------------------
   // 1. App State
   // ------------------------------------------------------------------------
+  let savedCalc = [];
+  try {
+    savedCalc = JSON.parse(localStorage.getItem('yp_calc_items')) || [];
+  } catch (e) {
+    savedCalc = [];
+  }
+
   const state = {
     selectedTownId: localStorage.getItem('yp_town') || 'yangpyeong',
     activeCategory: 'general',
     theme: localStorage.getItem('yp_theme') || 'light',
     searchQuery: '',
-    selectedCalcItems: [] // { name, fee, qty }
+    selectedCalcItems: savedCalc // { name, fee, qty }
   };
+
+  // ------------------------------------------------------------------------
+  // Supabase Database Integration for 'yptrash_items'
+  // ------------------------------------------------------------------------
+  let supabaseClient = null;
+  if (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY &&
+      window.SUPABASE_URL !== 'https://your-project-id.supabase.co') {
+    try {
+      supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    } catch (err) {
+      console.warn('Supabase initialization waiting for configuration credentials:', err.message);
+    }
+  }
+
+  let deviceId = localStorage.getItem('yp_device_id');
+  if (!deviceId) {
+    deviceId = 'dev_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+    localStorage.setItem('yp_device_id', deviceId);
+  }
+
+  function saveAppState() {
+    localStorage.setItem('yp_town', state.selectedTownId);
+    localStorage.setItem('yp_theme', state.theme);
+    localStorage.setItem('yp_calc_items', JSON.stringify(state.selectedCalcItems));
+
+    if (supabaseClient) {
+      supabaseClient
+        .from('yptrash_items')
+        .upsert({
+          device_id: deviceId,
+          selected_town: state.selectedTownId,
+          theme: state.theme,
+          calc_items: state.selectedCalcItems,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'device_id' })
+        .then(({ error }) => {
+          if (error) console.warn('Supabase DB sync note:', error.message);
+        });
+    }
+  }
+
+  async function syncFromSupabase() {
+    if (!supabaseClient) return;
+    try {
+      const { data, error } = await supabaseClient
+        .from('yptrash_items')
+        .select('*')
+        .eq('device_id', deviceId)
+        .maybeSingle();
+
+      if (data && !error) {
+        if (data.selected_town) state.selectedTownId = data.selected_town;
+        if (data.theme) state.theme = data.theme;
+        if (data.calc_items && Array.isArray(data.calc_items)) state.selectedCalcItems = data.calc_items;
+
+        initTheme();
+        renderTownSelector();
+        renderLiveStatus();
+        renderSelectedCalcList();
+        renderOfficesGrid();
+      }
+    } catch (err) {
+      console.warn('Supabase fetch fallback to local state:', err);
+    }
+  }
 
   // ------------------------------------------------------------------------
   // 2. DOM Elements
@@ -50,8 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   themeToggleBtn.addEventListener('click', () => {
     state.theme = state.theme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('yp_theme', state.theme);
     initTheme();
+    saveAppState();
     showToast(`테마가 ${state.theme === 'dark' ? '다크' : '라이트'} 모드로 변경되었습니다.`);
   });
 
@@ -83,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       card.addEventListener('click', () => {
         state.selectedTownId = town.id;
-        localStorage.setItem('yp_town', town.id);
+        saveAppState();
         renderTownSelector();
         renderLiveStatus();
         renderOfficesGrid();
@@ -384,6 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           state.selectedCalcItems.push({ name, fee, qty: 1 });
         }
+        saveAppState();
         renderSelectedCalcList();
       });
     });
@@ -437,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
             state.selectedCalcItems.splice(idx, 1);
           }
         }
+        saveAppState();
         renderSelectedCalcList();
       });
     });
@@ -543,5 +617,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSelectedCalcList();
   renderOfficesGrid();
   initMobileNav();
+  syncFromSupabase();
 });
 
