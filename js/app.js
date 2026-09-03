@@ -665,7 +665,85 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ------------------------------------------------------------------------
-  // 11. Initial App Launch
+  // 11. AI Vision Camera & Analysis Logic
+  // ------------------------------------------------------------------------
+  const aiImageInputEl = document.getElementById('aiImageInput');
+  const aiImagePreviewContainerEl = document.getElementById('aiImagePreviewContainer');
+  const aiImagePreviewEl = document.getElementById('aiImagePreview');
+  const aiAnalyzeBtn = document.getElementById('aiAnalyzeBtn');
+  const aiResultContainerEl = document.getElementById('aiResultContainer');
+  const aiResultTextEl = document.getElementById('aiResultText');
+  const aiLoadingIndicatorEl = document.getElementById('aiLoadingIndicator');
+  
+  let currentAiImageBase64 = null;
+  let currentAiImageMime = null;
+
+  if (aiImageInputEl) {
+    aiImageInputEl.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        aiImagePreviewEl.src = event.target.result;
+        aiImagePreviewContainerEl.style.display = 'block';
+        aiResultContainerEl.style.display = 'none';
+        
+        // Extract base64 and mime type
+        const dataUrl = event.target.result;
+        currentAiImageMime = dataUrl.substring(dataUrl.indexOf(':') + 1, dataUrl.indexOf(';'));
+        currentAiImageBase64 = dataUrl.substring(dataUrl.indexOf(',') + 1);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    aiAnalyzeBtn.addEventListener('click', async () => {
+      if (!window.GEMINI_API_KEY) {
+        alert('AI 기능을 사용하려면 설정(config.js)에 GEMINI_API_KEY를 입력해야 합니다.');
+        return;
+      }
+      if (!currentAiImageBase64) return;
+
+      aiLoadingIndicatorEl.style.display = 'block';
+      aiResultContainerEl.style.display = 'none';
+      aiAnalyzeBtn.disabled = true;
+
+      try {
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(window.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+        const prompt = `
+너는 양평군의 쓰레기 분리배출 전문가야. 
+사진 속 쓰레기(또는 재활용품)를 식별하고, 다음 양평군 기준 중 어디에 속하는지 명확하게 알려줘:
+- 일반쓰레기 (종량제 봉투)
+- 음식물쓰레기 (음식물 전용봉투/칩)
+- 재활용품 (투명 비닐 배출)
+- 불연성쓰레기 (불연성 마대)
+- 대형폐기물 (신고 및 스티커 부착 필요)
+
+답변은 사용자에게 친절하게, 2~3문장 이내로 핵심만 요약해서 한국어로 답변해줘.
+예시: "사진 속 물품은 [매트리스]입니다. 부피가 크므로 **대형폐기물**로 신고 후 수수료를 납부하여 배출하셔야 합니다."
+        `;
+
+        const imageParts = [{ inlineData: { data: currentAiImageBase64, mimeType: currentAiImageMime } }];
+        const result = await model.generateContent([prompt, ...imageParts]);
+        const response = await result.response;
+        
+        aiResultTextEl.textContent = response.text();
+        aiResultContainerEl.style.display = 'block';
+      } catch (err) {
+        console.error('AI API Error:', err);
+        alert('AI 분석 중 오류가 발생했습니다. API 키나 네트워크 연결을 확인해 주세요.');
+      } finally {
+        aiLoadingIndicatorEl.style.display = 'none';
+        aiAnalyzeBtn.disabled = false;
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------------
+  // 12. Initial App Launch
   // ------------------------------------------------------------------------
   initTheme();
   renderTownSelector();

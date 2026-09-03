@@ -1471,3 +1471,47 @@ input, select {
   color: var(--text-main);
 }
 
+/* --------------------------------------------------------------------------
+   13. AI Vision UI Styles
+   -------------------------------------------------------------------------- */
+.ai-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--primary-glow);
+  transition: all var(--transition-fast);
+}
+
+.ai-upload-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ai-analyze-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  background: #EC4899;
+  color: white;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.ai-analyze-btn:hover {
+  background: #BE185D;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
