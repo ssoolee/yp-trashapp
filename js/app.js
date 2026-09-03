@@ -619,62 +619,48 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ------------------------------------------------------------------------
-  // 10. Mobile Bottom Navigation & ScrollSpy
+  // 10. App SPA Routing (Mobile Nav & App Icons)
   // ------------------------------------------------------------------------
-  function initMobileNav() {
+  function initAppRouting() {
     const mobileBottomNavEl = document.getElementById('mobileBottomNav');
-    if (!mobileBottomNavEl) return;
+    const navItems = mobileBottomNavEl ? mobileBottomNavEl.querySelectorAll('.mobile-nav-item') : [];
+    const appIcons = document.querySelectorAll('.app-icon-btn');
+    const appViews = document.querySelectorAll('.app-view');
 
-    const navItems = mobileBottomNavEl.querySelectorAll('.mobile-nav-item');
-    const sections = [
-      { id: 'hero', nav: navItems[0] },
-      { id: 'dischargeGuide', nav: navItems[1] },
-      { id: 'searchSection', nav: navItems[2] },
-      { id: 'calcSection', nav: navItems[3] },
-      { id: 'officesSection', nav: navItems[4] }
-    ];
+    function navigateTo(targetId) {
+      // 1. Hide all views
+      appViews.forEach(view => view.classList.remove('active'));
+      
+      // 2. Show target view
+      const targetView = document.getElementById(targetId);
+      if (targetView) {
+        targetView.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
 
+      // 3. Update bottom nav active state
+      navItems.forEach(nav => {
+        nav.classList.remove('active');
+        if (nav.dataset.target === targetId) {
+          nav.classList.add('active');
+        }
+      });
+    }
+
+    // Attach click events to bottom nav
     navItems.forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
-        const targetId = item.dataset.target;
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          const headerOffset = 65;
-          const elementPosition = targetEl.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-
-          navItems.forEach(n => n.classList.remove('active'));
-          item.classList.add('active');
-        }
+        navigateTo(item.dataset.target);
       });
     });
 
-    // ScrollSpy to update active item on scroll
-    let isTicking = false;
-    window.addEventListener('scroll', () => {
-      if (!isTicking) {
-        window.requestAnimationFrame(() => {
-          const scrollPos = window.scrollY + 120;
-          for (let i = sections.length - 1; i >= 0; i--) {
-            const sec = document.getElementById(sections[i].id);
-            if (sec && sec.offsetTop <= scrollPos) {
-              navItems.forEach(n => n.classList.remove('active'));
-              if (sections[i].nav) {
-                sections[i].nav.classList.add('active');
-              }
-              break;
-            }
-          }
-          isTicking = false;
-        });
-        isTicking = true;
-      }
+    // Attach click events to home app icons
+    appIcons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateTo(btn.dataset.target);
+      });
     });
   }
 
@@ -691,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCalcItemsList();
   renderSelectedCalcList();
   renderOfficesGrid();
-  initMobileNav();
+  initAppRouting();
   syncFromSupabase();
 });
 

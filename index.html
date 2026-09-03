@@ -45,46 +45,67 @@
     </div>
   </header>
 
-  <!-- 2. Hero Section & Town Selector -->
-  <section class="hero" id="hero">
-    <div class="container">
-      <div class="hero-badge">
-        <i class="fa-solid fa-location-dot"></i> 경기도 양평군 12개 읍·면 통합 청소안내
-      </div>
-      <h1 class="hero-title">
-        우리 동네 <span>쓰레기 배출일자</span>를<br>한눈에 확인하세요
-      </h1>
-      <p class="hero-subtitle">
-        거주하시는 읍·면을 선택하시면 오늘 저녁 배출 가능 품목, 분리배출 방법, 종량제 봉투 가격 및 대형폐기물 수수료를 실시간으로 안내해 드립니다.
-      </p>
-
-      <!-- Town Selection Grid -->
-      <div class="town-selector-wrapper">
-        <div class="town-header">
-          <div class="town-header-title">
-            <i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i>
-            <span>양평군 12개 읍·면 선택</span>
-          </div>
-          <div class="selected-town-badge" id="selectedTownBadge">양평읍</div>
-        </div>
-
-        <div class="town-grid" id="townGrid">
-          <!-- JS dynamic generation -->
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Main Content Container -->
   <main class="container">
+    
+    <!-- 1. Home Dashboard View -->
+    <div id="homeView" class="app-view active">
+      <!-- Hero Section & Town Selector -->
+      <section class="hero" id="hero">
+        <div class="hero-badge">
+          <i class="fa-solid fa-location-dot"></i> 경기도 양평군 12개 읍·면 통합 청소안내
+        </div>
+        <h1 class="hero-title">
+          우리 동네 <span>쓰레기 배출일자</span>를<br>한눈에 확인하세요
+        </h1>
+        <p class="hero-subtitle">
+          거주하시는 읍·면을 선택하시면 오늘 저녁 배출 가능 품목, 분리배출 방법, 종량제 봉투 가격 및 대형폐기물 수수료를 실시간으로 안내해 드립니다.
+        </p>
 
-    <!-- 3. Live Status Banner ("오늘 저녁 배출 가능한 쓰레기") -->
-    <section class="live-status-card" id="liveStatusCard">
-      <!-- JS dynamic generation -->
-    </section>
+        <!-- Town Selection Grid -->
+        <div class="town-selector-wrapper">
+          <div class="town-header">
+            <div class="town-header-title">
+              <i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i>
+              <span>양평군 12개 읍·면 선택</span>
+            </div>
+            <div class="selected-town-badge" id="selectedTownBadge">양평읍</div>
+          </div>
+
+          <div class="town-grid" id="townGrid">
+            <!-- JS dynamic generation -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Status Banner -->
+      <section class="live-status-card" id="liveStatusCard" style="margin-bottom: 24px;">
+        <!-- JS dynamic generation -->
+      </section>
+
+      <!-- App Icon Dashboard Grid -->
+      <div class="app-icon-grid">
+        <button class="app-icon-btn" data-target="dischargeGuide">
+          <div class="app-icon-bg" style="background: var(--primary);"><i class="fa-solid fa-dumpster"></i></div>
+          <span>배출가이드</span>
+        </button>
+        <button class="app-icon-btn" data-target="searchSection">
+          <div class="app-icon-bg" style="background: #3B82F6;"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <span>스마트검색</span>
+        </button>
+        <button class="app-icon-btn" data-target="calcSection">
+          <div class="app-icon-bg" style="background: #F59E0B;"><i class="fa-solid fa-calculator"></i></div>
+          <span>수수료계산기</span>
+        </button>
+        <button class="app-icon-btn" data-target="officesSection">
+          <div class="app-icon-bg" style="background: #8B5CF6;"><i class="fa-solid fa-phone"></i></div>
+          <span>전화문의</span>
+        </button>
+      </div>
+    </div>
 
     <!-- 4. Waste Categories & Discharge Schedule -->
-    <section id="dischargeGuide" style="margin-bottom: 48px;">
+    <section class="app-view" id="dischargeGuide" style="margin-bottom: 48px;">
       <h2 class="section-title">
         <i class="fa-solid fa-dumpster" style="color: var(--primary);"></i>
         쓰레기 종류별 배출 가이드 & 요일표
@@ -102,7 +123,7 @@
     </section>
 
     <!-- 5. Smart Search Engine ("이 쓰레기는 어떻게 버리지?") -->
-    <section class="search-section" id="searchSection">
+    <section class="app-view search-section" id="searchSection">
       <h2 class="section-title">
         <i class="fa-solid fa-magnifying-glass-chart" style="color: var(--primary);"></i>
         이 쓰레기는 어떻게 버리지? (스마트 분리배출 검색)
@@ -123,7 +144,7 @@
     </section>
 
     <!-- 6. Bulky Waste Fee Calculator -->
-    <section class="calculator-section" id="calcSection">
+    <section class="app-view calculator-section" id="calcSection">
       <h2 class="section-title">
         <i class="fa-solid fa-calculator" style="color: var(--primary);"></i>
         대형폐기물 수수료 산정 계산기
@@ -166,7 +187,7 @@
     </section>
 
     <!-- 7. Town Offices Direct Contact Grid -->
-    <section id="officesSection" style="margin-bottom: 64px;">
+    <section class="app-view" id="officesSection" style="margin-bottom: 64px;">
       <h2 class="section-title">
         <i class="fa-solid fa-building-user" style="color: var(--primary);"></i>
         12개 읍·면 행정복지센터 & 직통 연락처
@@ -197,7 +218,7 @@
 
   <!-- Mobile Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav" id="mobileBottomNav">
-    <button class="mobile-nav-item active" data-target="hero">
+    <button class="mobile-nav-item active" data-target="homeView">
       <i class="fa-solid fa-house"></i>
       <span>홈</span>
     </button>
