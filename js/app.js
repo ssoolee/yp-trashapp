@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     savedFavs = [];
   }
 
+  let savedCalc = [];
+  try {
+    savedCalc = JSON.parse(localStorage.getItem('yp_calc_items')) || [];
+  } catch (e) {
+    savedCalc = [];
+  }
+
   const state = {
     selectedTownId: localStorage.getItem('yp_town') || 'yangpyeong',
     activeCategory: 'general',
