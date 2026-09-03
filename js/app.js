@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <div class="town-name">${town.name}</div>
         <div class="town-zone">${town.zone.split(' ')[0]}</div>
+        <div class="town-tel"><i class="fa-solid fa-phone"></i> ${town.tel}</div>
       `;
       card.addEventListener('click', () => {
         state.selectedTownId = town.id;
@@ -240,7 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="live-date-badge">
           <i class="fa-solid fa-calendar-day" style="color: var(--primary);"></i>
           <span>${dateStr}</span>
-          <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">[${currentTown.name}]</span>
+          <a href="tel:${currentTown.tel}" style="font-size: 0.9rem; font-weight: 700; color: var(--primary); display: inline-flex; align-items: center; gap: 4px; background: var(--primary-light); padding: 4px 10px; border-radius: var(--radius-full);">
+            <i class="fa-solid fa-phone"></i> ${currentTown.name} (${currentTown.tel})
+          </a>
         </div>
         ${statusPillHtml}
       </div>

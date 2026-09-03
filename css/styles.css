@@ -324,6 +324,22 @@ input, select {
   font-weight: 600;
 }
 
+.town-tel {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.town-card:hover .town-tel,
+.town-card.active .town-tel {
+  color: var(--primary);
+}
+
 /* --------------------------------------------------------------------------
    5. Live Discharge Status Banner (오늘 저녁 배출 안내)
    -------------------------------------------------------------------------- */
